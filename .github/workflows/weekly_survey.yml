@@ -1,0 +1,45 @@
+name: Weekly Research News Digest
+
+on:
+  schedule:
+    # UTC 00:00 = JST 09:00 に毎週月曜実行
+    - cron: '0 0 * * 1'
+  # GitHub の Actions タブから手動でも実行できる
+  workflow_dispatch:
+
+jobs:
+  survey:
+    runs-on: ubuntu-latest
+    permissions:
+      # ワークフローからリポジトリへの git push を許可するために必要
+      contents: write
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Run survey
+        env:
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+        run: |
+          echo "Placeholder: survey script will run here"
+
+      - name: Commit results
+        run: |
+          # GitHub Actions が自動で用意する bot アカウントをコミット作成者に設定する
+          # このメールアドレスは GitHub 公式の noreply アドレスで、
+          # bot によるコミットであることを示す慣例的な表記
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+
+          git add surveys/
+
+          # --staged: ステージング済みの差分のみを対象にする
+          # --quiet:  差分がない場合に何も出力しない（終了コード 1 を返す）
+          # 差分がなければ git commit をスキップし、不要なコミットを防ぐ
+          git diff --staged --quiet || git commit -m "Weekly digest $(date +%Y-%m-%d)"
+          git push
