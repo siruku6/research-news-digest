@@ -3,13 +3,15 @@ name: Weekly Research News Digest
 on:
   schedule:
     # UTC 00:00 = JST 09:00 に毎週月曜実行
-    - cron: '0 0 * * 1'
+    # - cron: '0 0 * * 1'
+    - cron: '0 0 * * *'
   # GitHub の Actions タブから手動でも実行できる
   workflow_dispatch:
 
 jobs:
   survey:
-    runs-on: ubuntu-latest
+    runs-on: self-hosted
+    # runs-on: ubuntu-latest
     permissions:
       # ワークフローからリポジトリへの git push を許可するために必要
       contents: write
