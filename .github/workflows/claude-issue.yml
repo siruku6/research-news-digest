@@ -3,10 +3,15 @@ name: Claude Issue
 on:
   issues:
     types: [labeled]
+  issue_comment:
+    types: [created]
 
 jobs:
   claude:
-    if: github.event.label.name == 'claude'
+    if: |
+      (github.event_name == 'issues' && github.event.label.name == 'claude') ||
+      (github.event_name == 'issue_comment' &&
+       contains(github.event.comment.body, '@claude'))
     runs-on: [self-hosted, linux, x64]
 
     permissions:
@@ -20,11 +25,11 @@ jobs:
       - name: Run Claude
         env:
           ISSUE_NUMBER: ${{ github.event.issue.number }}
+          COMMENT_BODY: ${{ github.event.comment.body }}
           GH_TOKEN: ${{ github.token }}
         run: |
           claude -p "
           GitHub Issue #${ISSUE_NUMBER} を調査してください。
-
           最初に gh issue view ${ISSUE_NUMBER} を使ってIssueを確認してください。
 
           今回はコードを変更せず、
@@ -34,5 +39,10 @@ jobs:
           - 関係するコード
           - 実装方法
           - 実行環境に不足しているもの
-          - 注意すべき点
+          - 注意すべき点 / 人がもっと検討した方が良い点
+
+          # 追加 comment
+          
+          指示コメント:
+          ${COMMENT_BODY:-ラベル claude により起動されました}
           "
