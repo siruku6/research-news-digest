@@ -1,0 +1,38 @@
+name: Claude Issue
+
+on:
+  issues:
+    types: [labeled]
+
+jobs:
+  claude:
+    if: github.event.label.name == 'claude'
+    runs-on: [self-hosted, linux, x64]
+
+    permissions:
+      contents: read
+      issues: read
+      pull-requests: write
+
+    steps:
+      - uses: actions/checkout@v6
+
+      - name: Run Claude
+        env:
+          ISSUE_NUMBER: ${{ github.event.issue.number }}
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          claude -p "
+          GitHub Issue #${ISSUE_NUMBER} を調査してください。
+
+          最初に gh issue view ${ISSUE_NUMBER} を使ってIssueを確認してください。
+
+          今回はコードを変更せず、
+          以下を調査結果として報告してください。
+
+          - Issueが要求していること
+          - 関係するコード
+          - 実装方法
+          - 実行環境に不足しているもの
+          - 注意すべき点
+          "
