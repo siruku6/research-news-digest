@@ -22,14 +22,16 @@ jobs:
     steps:
       - uses: actions/checkout@v6
 
+      - name: Add local tools to PATH
+        run: |
+          echo "$HOME/.local/bin" >> "$GITHUB_PATH"
+      
       - name: Run Claude
         env:
           ISSUE_NUMBER: ${{ github.event.issue.number }}
           COMMENT_BODY: ${{ github.event.comment.body }}
           GH_TOKEN: ${{ github.token }}
         run: |
-          export PATH="$HOME/.local/bin:$PATH"
-
           claude -p "
           GitHub Issue #${ISSUE_NUMBER} を調査してください。
           最初に gh issue view ${ISSUE_NUMBER} を使ってIssueを確認してください。
