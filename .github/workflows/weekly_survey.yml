@@ -25,10 +25,8 @@ jobs:
           python-version: '3.12'
 
       - name: Run survey
-        env:
-          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
         run: |
-          echo "Placeholder: survey script will run here"
+          python src/generate_survey.py
 
       - name: Commit results
         run: |
